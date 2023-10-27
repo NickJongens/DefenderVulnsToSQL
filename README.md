@@ -1,5 +1,5 @@
 # DefenderVulnsToSQL
-A containerised script (&amp; container) to automatically pull from the Microsoft Defender API and write to different types of SQL Server every 10 minutes. 
+A script (&amp; container) to automatically pull from the Microsoft Defender API and write to different types of SQL Server every 10 minutes. 
 
 ## MS SQL (Microsoft SQL Server Express) 
 This is the Microsoft SQL Server branch tailored to ingesting data into a MS SQL Express (or better) database. 
