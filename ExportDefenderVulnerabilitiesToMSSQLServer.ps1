@@ -70,9 +70,9 @@ try {
     foreach ($vuln in $vulnerabilities.value) {
         # Add debug information to see which severity is being processed
         Write-Host "Processing vulnerability with Severity: $($vuln.severity)"
-
-        # Check if the severity is "Critical" or "High"
-        if ($vuln.severity -eq "Critical" -or $vuln.severity -eq "High") {
+        
+        # Check if the severity is "Critical" or "High" and machines exposed is greater than 0
+        if (($vuln.severity -eq "Critical" -or $vuln.severity -eq "High") -and $vuln.exposedMachines -gt 0) {
             $params = @{
                 "@Id"               = $vuln.id
                 "@Name"             = $vuln.name
