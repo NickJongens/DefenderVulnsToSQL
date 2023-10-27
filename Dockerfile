@@ -18,7 +18,7 @@ RUN apt-get update && \
     apt-get install -y cron nano
 
 # Copy your PowerShell script into the container
-COPY ExportDefenderVulnerabilitiesToSQLServer.ps1 /app/
+COPY ExportDefenderVulnerabilitiesToMSSQLServer.ps1 /app/
 
 # Install supervisord
 RUN apt-get install -y supervisor
