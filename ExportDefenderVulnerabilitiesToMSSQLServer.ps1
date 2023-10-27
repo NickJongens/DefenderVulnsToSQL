@@ -23,7 +23,7 @@ try {
     $tokenUrl = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token"
     $tokenParams = @{
         client_id     = $clientId
-        scope         = "https://securitycenter.microsoft.com/.default"
+        scope         = "https://api.securitycenter.microsoft.com/.default"
         client_secret = $clientSecret
         grant_type    = "client_credentials"
     }
