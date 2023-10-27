@@ -17,7 +17,6 @@ $password = $env:PASSWORD
 # Convert the password to a secure string
 $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential($username, $securePassword)
-
 try {
     # Obtain an access token for Microsoft Defender for Office 365 ATP
     $tokenUrl = "https://login.microsoftonline.com/$tenantId/oauth2/v2.0/token"
@@ -36,6 +35,8 @@ try {
 
     # Write the retrieved data to SQL Server
     $connection = Open-SqlConnection -Server $serverName -Database $databaseName -Credential $credential
+
+    # Define the SQL query to insert data
     $query = @"
     INSERT INTO $DatabaseTable (
         Id,
@@ -67,39 +68,45 @@ try {
 
     # Loop through the vulnerabilities and execute the SQL query for each record
     foreach ($vuln in $vulnerabilities.value) {
-        $params = @{
-            "@Id"               = $vuln.id
-            "@Name"             = $vuln.name
-            "@Description"      = $vuln.description
-            "@Severity"         = $vuln.severity
-            "@CvssV3"           = $vuln.cvssV3
-            "@ExposedMachines"  = $vuln.exposedMachines
-            "@PublishedOn"      = $vuln.publishedOn
-            "@UpdatedOn"        = $vuln.updatedOn
-            "@PublicExploit"    = $vuln.publicExploit
-            "@ExploitVerified"  = $vuln.exploitVerified
-        }
+        # Add debug information to see which severity is being processed
+        Write-Host "Processing vulnerability with Severity: $($vuln.severity)"
 
-        # Check if a record with the same ID already exists in the Vulnerabilities table
-        $recordExistsQuery = "SELECT 1 FROM $databaseTable WHERE Id = @Id"
-        $recordExists = Invoke-SqlQuery -Query $recordExistsQuery -Parameters $params
-
-        if ($recordExists -eq $null) {
-            # The record doesn't exist, so insert it
-            Write-Host "Inserting data into SQL table"
-
-            try {
-                # Execute the SQL query with parameters
-                Invoke-SqlUpdate -Query $query -Parameters $params
-                Write-Host "Data successfully inserted into the Vulnerabilities table."
+        # Check if the severity is "Critical" or "High"
+        if ($vuln.severity -eq "Critical" -or $vuln.severity -eq "High") {
+            $params = @{
+                "@Id"               = $vuln.id
+                "@Name"             = $vuln.name
+                "@Description"      = $vuln.description
+                "@Severity"         = $vuln.severity
+                "@CvssV3"           = $vuln.cvssV3
+                "@ExposedMachines"  = $vuln.exposedMachines
+                "@PublishedOn"      = $vuln.publishedOn
+                "@UpdatedOn"        = $vuln.updatedOn
+                "@PublicExploit"    = $vuln.publicExploit
+                "@ExploitVerified"  = $vuln.exploitVerified
             }
-            catch {
-                Write-Host "Error inserting data: $_"
-                # You can log the error to a file or perform other error handling actions here
+
+            # Check if a record with the same ID already exists in the Vulnerabilities table
+            $recordExistsQuery = "SELECT 1 FROM $databaseTable WHERE Id = @Id"
+            $recordExists = Invoke-SqlQuery -Query $recordExistsQuery -Parameters $params
+
+            if ($recordExists -eq $null) {
+                # The record doesn't exist, so insert it
+                Write-Host "Inserting data into SQL table"
+
+                try {
+                    # Execute the SQL query with parameters
+                    Invoke-SqlUpdate -Query $query -Parameters $params
+                    Write-Host "Data successfully inserted into the Vulnerabilities table."
+                }
+                catch {
+                    Write-Host "Error inserting data: $_"
+                    # You can log the error to a file or perform other error handling actions here
+                }
             }
-        }
-        else {
-            Write-Host "Data with Id $($params['@Id']) already exists in the table. Skipping insertion."
+            else {
+                Write-Host "Data with Id $($params['@Id']) already exists in the table. Skipping insertion."
+            }
         }
     }
 
