@@ -21,7 +21,7 @@ sudo docker push <dockerhubusername>/defendervulnstomssql:latest
 Use the following docker run command to deploy an unattended Docker container for continuous upload:
 
 ```bash
-docker run -d --name azuread-log-exporter \
+docker run -d --name DefenderVulnsToMSSQL \
   -e CLIENT_ID=<App ID/Client ID in App Registration> \
   -e CLIENT_SECRET=<Application Secret> \
   -e TENANT_ID=<Azure AD/Entra ID Tenant ID> \
